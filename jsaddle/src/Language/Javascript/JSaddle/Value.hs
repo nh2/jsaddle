@@ -72,7 +72,6 @@ module Language.Javascript.JSaddle.Value (
   , valMakeNumber
   , valMakeString
   , valMakeText
-  , valMakeJSON
 
   -- * Convert to and from JSValue
   , deRefVal
@@ -83,7 +82,6 @@ module Language.Javascript.JSaddle.Value (
 
 import Data.Text (Text)
 import qualified Data.Text as T (pack, unpack)
-import Data.Aeson (Value)
 import Data.JSString.Text (textToJSString)
 
 #ifdef ghcjs_HOST_OS
@@ -102,6 +100,7 @@ import Language.Javascript.JSaddle.Native
 import qualified Language.Javascript.JSaddle.Native as N
        (deRefVal, strictEqual, instanceOf)
 import Language.Javascript.JSaddle.Run (Result(..))
+import Data.Aeson (Value)
 #endif
 import Language.Javascript.JSaddle.Monad (JSM)
 import Language.Javascript.JSaddle.Classes
@@ -562,20 +561,12 @@ instance FromJSVal Char where
     {-# INLINE fromJSValUncheckedListOf #-}
 #endif
 
--- | Make a JavaScript string from AESON `Value`
-valMakeJSON :: Value -> JSM JSVal
-valMakeJSON = toJSVal
-
 #ifndef ghcjs_HOST_OS
 -- | Makes a JSON value
 instance ToJSVal Value where
     toJSVal = jsonValueToValue
     {-# INLINE toJSVal #-}
 #endif
-
--- | Makes an argument list with just a single JSON value
-instance MakeArgs Value where
-    makeArgs t = valMakeJSON t >>= (\ref -> return [ref])
 
 -- | Derefernce a value reference.
 --
